@@ -1,280 +1,779 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ResumeIQ — AI Resume Analyzer</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ResumeIQ — AI Resume Analyzer</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-    }
+<!-- PDF.js for reading PDF resumes -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs"
+        type="module"></script>
 
-    body {
-      background: #0b0d12;
-      color: #fff;
-      min-height: 100vh;
-    }
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0
+}
 
-    nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 22px 8%;
-      border-bottom: 1px solid #20232b;
-    }
+body{
+  font-family:Inter,Arial,sans-serif;
+  background:#08090d;
+  color:#fff;
+  min-height:100vh
+}
 
-    .logo {
-      font-size: 24px;
-      font-weight: 800;
-    }
+nav{
+  padding:22px 7%;
+  display:flex;
+  justify-content:space-between;
+  border-bottom:1px solid #20222b
+}
 
-    .logo span {
-      color: #7c5cff;
-    }
+.logo{
+  font-size:24px;
+  font-weight:800
+}
 
-    .hero {
-      text-align: center;
-      padding: 80px 20px 45px;
-    }
+.logo span{
+  color:#8066ff
+}
 
-    .badge {
-      display: inline-block;
-      background: #171525;
-      color: #a995ff;
-      border: 1px solid #332b61;
-      padding: 8px 15px;
-      border-radius: 30px;
-      font-size: 13px;
-      margin-bottom: 22px;
-    }
+nav small{
+  color:#858a99
+}
 
-    h1 {
-      font-size: clamp(42px, 7vw, 76px);
-      line-height: 1;
-      margin-bottom: 22px;
-    }
+.hero{
+  text-align:center;
+  padding:65px 20px 35px
+}
 
-    h1 span {
-      color: #8b72ff;
-    }
+.badge{
+  display:inline-block;
+  padding:8px 15px;
+  border:1px solid #39315e;
+  background:#151222;
+  color:#a996ff;
+  border-radius:30px;
+  font-size:13px;
+  margin-bottom:20px
+}
 
-    .hero p {
-      color: #9da3b4;
-      max-width: 650px;
-      margin: auto;
-      font-size: 18px;
-      line-height: 1.6;
-    }
+h1{
+  font-size:clamp(42px,7vw,72px);
+  line-height:1.02
+}
 
-    .container {
-      max-width: 850px;
-      margin: 25px auto 80px;
-      padding: 0 20px;
-    }
+h1 span{
+  color:#8066ff
+}
 
-    .upload-box {
-      border: 2px dashed #393d49;
-      background: #11141b;
-      border-radius: 20px;
-      padding: 55px 25px;
-      text-align: center;
-      transition: .2s;
-    }
+.hero p{
+  max-width:650px;
+  margin:20px auto;
+  color:#9298a8;
+  font-size:17px;
+  line-height:1.6
+}
 
-    .upload-box:hover {
-      border-color: #8066ff;
-      background: #13151e;
-    }
+.container{
+  max-width:1000px;
+  margin:auto;
+  padding:20px
+}
 
-    .upload-icon {
-      font-size: 45px;
-      margin-bottom: 15px;
-    }
+.card{
+  background:#11131a;
+  border:1px solid #252832;
+  border-radius:20px;
+  padding:28px;
+  margin-bottom:20px
+}
 
-    .upload-box h2 {
-      margin-bottom: 10px;
-    }
+label{
+  display:block;
+  font-weight:700;
+  margin-bottom:10px
+}
 
-    .upload-box p {
-      color: #858b9c;
-      margin-bottom: 25px;
-    }
+textarea{
+  width:100%;
+  min-height:180px;
+  background:#0a0c11;
+  color:#fff;
+  border:1px solid #2b2e39;
+  border-radius:12px;
+  padding:16px;
+  resize:vertical;
+  outline:none;
+  font-size:14px;
+  line-height:1.6
+}
 
-    input[type="file"] {
-      display: none;
-    }
+textarea:focus{
+  border-color:#8066ff
+}
 
-    .button {
-      display: inline-block;
-      background: #7658ff;
-      color: white;
-      padding: 13px 24px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: 700;
-      border: none;
-    }
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px
+}
 
-    .button:hover {
-      background: #6244ed;
-    }
+/* Upload area */
 
-    #fileName {
-      margin-top: 18px;
-      color: #a995ff;
-      font-size: 14px;
-    }
+.upload-area{
+  border:1px dashed #3a3d48;
+  background:#0c0e14;
+  border-radius:12px;
+  padding:18px;
+  margin-bottom:12px;
+  text-align:center
+}
 
-    .features {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 15px;
-      margin-top: 20px;
-    }
+.upload-area p{
+  color:#858b9b;
+  font-size:13px;
+  margin-bottom:12px
+}
 
-    .feature {
-      background: #11141b;
-      border: 1px solid #20232b;
-      padding: 25px;
-      border-radius: 15px;
-    }
+.upload-button{
+  display:inline-block;
+  background:#1b1e28;
+  border:1px solid #343845;
+  color:#fff;
+  padding:10px 16px;
+  border-radius:9px;
+  cursor:pointer;
+  font-size:13px;
+  font-weight:700
+}
 
-    .feature h3 {
-      margin: 12px 0 8px;
-    }
+.upload-button:hover{
+  border-color:#8066ff;
+  background:#181625
+}
 
-    .feature p {
-      color: #858b9c;
-      font-size: 14px;
-      line-height: 1.5;
-    }
+input[type="file"]{
+  display:none
+}
 
-    .results {
-      display: none;
-      margin-top: 25px;
-      background: #11141b;
-      border: 1px solid #282c36;
-      border-radius: 20px;
-      padding: 30px;
-    }
+#fileStatus{
+  margin-top:10px;
+  font-size:12px;
+  color:#a996ff;
+  min-height:16px
+}
 
-    .score {
-      text-align: center;
-      font-size: 55px;
-      font-weight: 800;
-      color: #8b72ff;
-      margin: 15px 0;
-    }
+button{
+  width:100%;
+  margin-top:20px;
+  padding:15px;
+  border:0;
+  border-radius:11px;
+  background:#8066ff;
+  color:white;
+  font-weight:800;
+  font-size:16px;
+  cursor:pointer
+}
 
-    .results h2 {
-      margin-bottom: 15px;
-    }
+button:hover{
+  background:#694eea
+}
 
-    .result-item {
-      padding: 15px;
-      border-bottom: 1px solid #242731;
-      color: #b7bdca;
-    }
+button:disabled{
+  opacity:.6;
+  cursor:not-allowed
+}
 
-    @media (max-width: 700px) {
-      .features {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
+#results{
+  display:none
+}
+
+.scoreBox{
+  text-align:center;
+  padding:20px
+}
+
+.score{
+  font-size:70px;
+  font-weight:900;
+  color:#8066ff
+}
+
+.scoreLabel{
+  color:#9096a5
+}
+
+.columns{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:15px
+}
+
+.result{
+  background:#0b0d12;
+  border:1px solid #242731;
+  border-radius:14px;
+  padding:20px
+}
+
+.result h3{
+  margin-bottom:15px
+}
+
+.result p{
+  color:#969cab;
+  line-height:1.6;
+  font-size:14px
+}
+
+.tags{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px
+}
+
+.tag{
+  padding:7px 10px;
+  border-radius:20px;
+  font-size:12px;
+  background:#1b1e27;
+  color:#c9cdd8
+}
+
+.missing{
+  background:#28191d;
+  color:#ff9b9b
+}
+
+.good{
+  color:#8df0b0
+}
+
+.warn{
+  color:#ffd37d
+}
+
+footer{
+  text-align:center;
+  color:#606573;
+  padding:30px
+}
+
+@media(max-width:700px){
+
+  .grid,
+  .columns{
+    grid-template-columns:1fr
+  }
+
+  nav small{
+    display:none
+  }
+}
+</style>
 </head>
 
 <body>
 
-  <nav>
-    <div class="logo">Resume<span>IQ</span></div>
-    <div style="color:#858b9c;font-size:14px;">AI Resume Analyzer</div>
-  </nav>
+<nav>
+  <div class="logo">Resume<span>IQ</span></div>
+  <small>AI Resume Intelligence</small>
+</nav>
 
-  <section class="hero">
-    <div class="badge">✦ AI-Powered Career Intelligence</div>
+<section class="hero">
 
-    <h1>Turn your resume into<br><span>your advantage.</span></h1>
+  <div class="badge">✦ Smart Resume Analysis</div>
 
-    <p>
-      Analyze your resume, discover missing skills and improve your
-      ATS compatibility with intelligent resume insights.
-    </p>
-  </section>
+  <h1>
+    Make your resume<br>
+    <span>job-ready.</span>
+  </h1>
 
-  <main class="container">
+  <p>
+    Compare your resume with a job description and discover
+    important keywords, skills and areas to improve.
+  </p>
 
-    <div class="upload-box">
-      <div class="upload-icon">📄</div>
+</section>
 
-      <h2>Analyze your resume</h2>
+<main class="container">
 
-      <p>Upload your resume in PDF, DOC or DOCX format</p>
+<div class="card">
 
-      <label class="button" for="resume">
-        Choose Resume
-      </label>
+  <div class="grid">
 
-      <input type="file" id="resume" accept=".pdf,.doc,.docx">
+    <!-- RESUME -->
 
-      <div id="fileName"></div>
-    </div>
+    <div>
 
-    <div class="features">
+      <label>📄 Your Resume</label>
 
-      <div class="feature">
-        <div>🎯</div>
-        <h3>ATS Score</h3>
-        <p>See how well your resume performs against applicant tracking systems.</p>
+      <div class="upload-area">
+
+        <p>
+          Upload a PDF or paste your resume below
+        </p>
+
+        <label class="upload-button" for="resumeFile">
+          📎 Upload PDF
+        </label>
+
+        <input
+          type="file"
+          id="resumeFile"
+          accept=".pdf,application/pdf"
+        >
+
+        <div id="fileStatus"></div>
+
       </div>
 
-      <div class="feature">
-        <div>🧠</div>
-        <h3>Skill Analysis</h3>
-        <p>Identify important skills already present and discover missing ones.</p>
-      </div>
-
-      <div class="feature">
-        <div>🚀</div>
-        <h3>Smart Suggestions</h3>
-        <p>Get actionable recommendations to make your resume stronger.</p>
-      </div>
+      <textarea
+        id="resume"
+        placeholder="Or paste your resume text here..."
+      ></textarea>
 
     </div>
 
-    <div class="results" id="results">
-      <h2>Resume Analysis</h2>
 
-      <div class="score">82/100</div>
+    <!-- JOB DESCRIPTION -->
 
-      <div class="result-item">✅ Strong technical skills detected</div>
-      <div class="result-item">✅ Good resume structure</div>
-      <div class="result-item">⚠️ Add more measurable achievements</div>
-      <div class="result-item">⚠️ Include keywords relevant to your target role</div>
+    <div>
+
+      <label>💼 Job Description</label>
+
+      <textarea
+        id="job"
+        placeholder="Paste the job description here..."
+      ></textarea>
+
     </div>
 
-  </main>
+  </div>
 
-  <script>
-    const resume = document.getElementById("resume");
-    const fileName = document.getElementById("fileName");
-    const results = document.getElementById("results");
 
-    resume.addEventListener("change", function () {
-      if (resume.files.length > 0) {
-        fileName.textContent = "Selected: " + resume.files[0].name;
+  <button
+    id="analyzeButton"
+    onclick="analyze()"
+  >
+    Analyze My Resume →
+  </button>
 
-        setTimeout(() => {
-          results.style.display = "block";
-          results.scrollIntoView({ behavior: "smooth" });
-        }, 700);
-      }
-    });
-  </script>
+</div>
+
+
+<!-- RESULTS -->
+
+<div class="card" id="results">
+
+  <div class="scoreBox">
+
+    <div class="score" id="score">
+      0
+    </div>
+
+    <div class="scoreLabel">
+      ATS Compatibility Score
+    </div>
+
+  </div>
+
+
+  <div class="columns">
+
+    <div class="result">
+
+      <h3 class="good">
+        ✓ Matched Keywords
+      </h3>
+
+      <div
+        class="tags"
+        id="matched"
+      ></div>
+
+    </div>
+
+
+    <div class="result">
+
+      <h3 class="warn">
+        ⚠ Missing Keywords
+      </h3>
+
+      <div
+        class="tags"
+        id="missing"
+      ></div>
+
+    </div>
+
+
+    <div class="result">
+
+      <h3>
+        📊 Resume Signals
+      </h3>
+
+      <p id="signals"></p>
+
+    </div>
+
+
+    <div class="result">
+
+      <h3>
+        🚀 Recommendations
+      </h3>
+
+      <p id="recommendations"></p>
+
+    </div>
+
+  </div>
+
+</div>
+
+</main>
+
+
+<footer>
+  ResumeIQ · Built for smarter job applications
+</footer>
+
+
+<script type="module">
+
+/*
+  PDF TEXT EXTRACTION
+*/
+
+import * as pdfjsLib from
+"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs";
+
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs";
+
+
+const fileInput =
+document.getElementById("resumeFile");
+
+const resumeBox =
+document.getElementById("resume");
+
+const fileStatus =
+document.getElementById("fileStatus");
+
+
+fileInput.addEventListener("change", async function(){
+
+  const file = fileInput.files[0];
+
+  if(!file) return;
+
+
+  if(file.type !== "application/pdf"){
+
+    fileStatus.textContent =
+    "Please upload a PDF file.";
+
+    return;
+  }
+
+
+  fileStatus.textContent =
+  "⏳ Reading your resume...";
+
+
+  try{
+
+    const arrayBuffer =
+    await file.arrayBuffer();
+
+
+    const pdf =
+    await pdfjsLib.getDocument({
+      data: arrayBuffer
+    }).promise;
+
+
+    let fullText = "";
+
+
+    for(
+      let pageNumber = 1;
+      pageNumber <= pdf.numPages;
+      pageNumber++
+    ){
+
+      const page =
+      await pdf.getPage(pageNumber);
+
+
+      const content =
+      await page.getTextContent();
+
+
+      const pageText =
+      content.items
+      .map(item => item.str)
+      .join(" ");
+
+
+      fullText += pageText + "\n";
+    }
+
+
+    resumeBox.value =
+    fullText.trim();
+
+
+    if(fullText.trim()){
+
+      fileStatus.textContent =
+      "✓ " + file.name +
+      " loaded successfully.";
+
+    }else{
+
+      fileStatus.textContent =
+      "⚠ No text found. Try pasting the resume manually.";
+
+    }
+
+  }catch(error){
+
+    console.error(error);
+
+    fileStatus.textContent =
+    "⚠ Could not read this PDF. Please paste the text manually.";
+
+  }
+
+});
+
+
+/*
+  KEYWORD ANALYSIS
+*/
+
+const stopWords = new Set([
+
+"the","and","for","with","that","this",
+"from","your","you","are","have","has",
+"was","were","will","our","their","they",
+"job","work","role","team","using","into",
+"about","years","who","what","how","all",
+"can","not","but","also","more","than",
+"its","his","her","company","looking",
+"experience"
+
+]);
+
+
+function words(text){
+
+  return [
+    ...new Set(
+
+      text
+      .toLowerCase()
+      .replace(/[^a-z0-9+#.\- ]/g," ")
+      .split(/\s+/)
+      .filter(
+        w =>
+        w.length > 2 &&
+        !stopWords.has(w)
+      )
+
+    )
+  ];
+
+}
+
+
+/*
+  ANALYZE
+*/
+
+window.analyze = function(){
+
+  const resume =
+  resumeBox.value.trim();
+
+  const job =
+  document.getElementById("job")
+  .value.trim();
+
+
+  if(!resume || !job){
+
+    alert(
+      "Please provide both your resume and the job description."
+    );
+
+    return;
+  }
+
+
+  const resumeWords =
+  words(resume);
+
+  const jobWords =
+  words(job);
+
+
+  const matched =
+  jobWords.filter(
+    word => resumeWords.includes(word)
+  );
+
+
+  const missing =
+  jobWords.filter(
+    word => !resumeWords.includes(word)
+  );
+
+
+  const score =
+  Math.min(
+    100,
+    Math.round(
+      (matched.length /
+      Math.max(jobWords.length,1))
+      * 100
+    )
+  );
+
+
+  document.getElementById("score")
+  .textContent =
+  score + "/100";
+
+
+  document.getElementById("matched")
+  .innerHTML =
+
+  matched
+  .slice(0,25)
+  .map(
+    word =>
+    `<span class="tag">${word}</span>`
+  )
+  .join("")
+
+  ||
+
+  "<span class='tag'>No matches found</span>";
+
+
+  document.getElementById("missing")
+  .innerHTML =
+
+  missing
+  .slice(0,25)
+  .map(
+    word =>
+    `<span class="tag missing">${word}</span>`
+  )
+  .join("")
+
+  ||
+
+  "<span class='tag'>Great keyword coverage!</span>";
+
+
+  let signals = "";
+
+
+  if(resume.length > 1500)
+
+    signals +=
+    "✓ Good amount of resume content.<br>";
+
+  else
+
+    signals +=
+    "⚠ Your resume may be too short.<br>";
+
+
+  if(/education/i.test(resume))
+
+    signals +=
+    "✓ Education section detected.<br>";
+
+  else
+
+    signals +=
+    "⚠ Consider adding an education section.<br>";
+
+
+  if(/experience|internship/i.test(resume))
+
+    signals +=
+    "✓ Experience section detected.<br>";
+
+  else
+
+    signals +=
+    "⚠ Add relevant experience or internships.<br>";
+
+
+  if(
+    /\d+%|\d+\+|₹|\$|increased|reduced|built|led/i
+    .test(resume)
+  )
+
+    signals +=
+    "✓ Measurable achievements detected.";
+
+  else
+
+    signals +=
+    "⚠ Add numbers and measurable achievements.";
+
+
+  document.getElementById("signals")
+  .innerHTML = signals;
+
+
+  let recommendations = "";
+
+
+  if(missing.length)
+
+    recommendations +=
+    "Add relevant missing keywords naturally where they are truthful.<br><br>";
+
+
+  recommendations +=
+    "Use measurable results instead of generic responsibilities.<br><br>" +
+
+    "Keep formatting simple and ATS-friendly.<br><br>" +
+
+    "Tailor your resume to each specific job.";
+
+
+  document.getElementById("recommendations")
+  .innerHTML =
+  recommendations;
+
+
+  document.getElementById("results")
+  .style.display = "block";
+
+
+  document.getElementById("results")
+  .scrollIntoView({
+    behavior:"smooth"
+  });
+
+};
+
+</script>
 
 </body>
 </html>
