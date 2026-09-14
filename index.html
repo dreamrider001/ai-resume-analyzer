@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ResumeIQ — AI Resume Analyzer</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: #0b0d12;
+      color: #fff;
+      min-height: 100vh;
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 22px 8%;
+      border-bottom: 1px solid #20232b;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 800;
+    }
+
+    .logo span {
+      color: #7c5cff;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 80px 20px 45px;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #171525;
+      color: #a995ff;
+      border: 1px solid #332b61;
+      padding: 8px 15px;
+      border-radius: 30px;
+      font-size: 13px;
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      font-size: clamp(42px, 7vw, 76px);
+      line-height: 1;
+      margin-bottom: 22px;
+    }
+
+    h1 span {
+      color: #8b72ff;
+    }
+
+    .hero p {
+      color: #9da3b4;
+      max-width: 650px;
+      margin: auto;
+      font-size: 18px;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 850px;
+      margin: 25px auto 80px;
+      padding: 0 20px;
+    }
+
+    .upload-box {
+      border: 2px dashed #393d49;
+      background: #11141b;
+      border-radius: 20px;
+      padding: 55px 25px;
+      text-align: center;
+      transition: .2s;
+    }
+
+    .upload-box:hover {
+      border-color: #8066ff;
+      background: #13151e;
+    }
+
+    .upload-icon {
+      font-size: 45px;
+      margin-bottom: 15px;
+    }
+
+    .upload-box h2 {
+      margin-bottom: 10px;
+    }
+
+    .upload-box p {
+      color: #858b9c;
+      margin-bottom: 25px;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .button {
+      display: inline-block;
+      background: #7658ff;
+      color: white;
+      padding: 13px 24px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+      border: none;
+    }
+
+    .button:hover {
+      background: #6244ed;
+    }
+
+    #fileName {
+      margin-top: 18px;
+      color: #a995ff;
+      font-size: 14px;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .feature {
+      background: #11141b;
+      border: 1px solid #20232b;
+      padding: 25px;
+      border-radius: 15px;
+    }
+
+    .feature h3 {
+      margin: 12px 0 8px;
+    }
+
+    .feature p {
+      color: #858b9c;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .results {
+      display: none;
+      margin-top: 25px;
+      background: #11141b;
+      border: 1px solid #282c36;
+      border-radius: 20px;
+      padding: 30px;
+    }
+
+    .score {
+      text-align: center;
+      font-size: 55px;
+      font-weight: 800;
+      color: #8b72ff;
+      margin: 15px 0;
+    }
+
+    .results h2 {
+      margin-bottom: 15px;
+    }
+
+    .result-item {
+      padding: 15px;
+      border-bottom: 1px solid #242731;
+      color: #b7bdca;
+    }
+
+    @media (max-width: 700px) {
+      .features {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav>
+    <div class="logo">Resume<span>IQ</span></div>
+    <div style="color:#858b9c;font-size:14px;">AI Resume Analyzer</div>
+  </nav>
+
+  <section class="hero">
+    <div class="badge">✦ AI-Powered Career Intelligence</div>
+
+    <h1>Turn your resume into<br><span>your advantage.</span></h1>
+
+    <p>
+      Analyze your resume, discover missing skills and improve your
+      ATS compatibility with intelligent resume insights.
+    </p>
+  </section>
+
+  <main class="container">
+
+    <div class="upload-box">
+      <div class="upload-icon">📄</div>
+
+      <h2>Analyze your resume</h2>
+
+      <p>Upload your resume in PDF, DOC or DOCX format</p>
+
+      <label class="button" for="resume">
+        Choose Resume
+      </label>
+
+      <input type="file" id="resume" accept=".pdf,.doc,.docx">
+
+      <div id="fileName"></div>
+    </div>
+
+    <div class="features">
+
+      <div class="feature">
+        <div>🎯</div>
+        <h3>ATS Score</h3>
+        <p>See how well your resume performs against applicant tracking systems.</p>
+      </div>
+
+      <div class="feature">
+        <div>🧠</div>
+        <h3>Skill Analysis</h3>
+        <p>Identify important skills already present and discover missing ones.</p>
+      </div>
+
+      <div class="feature">
+        <div>🚀</div>
+        <h3>Smart Suggestions</h3>
+        <p>Get actionable recommendations to make your resume stronger.</p>
+      </div>
+
+    </div>
+
+    <div class="results" id="results">
+      <h2>Resume Analysis</h2>
+
+      <div class="score">82/100</div>
+
+      <div class="result-item">✅ Strong technical skills detected</div>
+      <div class="result-item">✅ Good resume structure</div>
+      <div class="result-item">⚠️ Add more measurable achievements</div>
+      <div class="result-item">⚠️ Include keywords relevant to your target role</div>
+    </div>
+
+  </main>
+
+  <script>
+    const resume = document.getElementById("resume");
+    const fileName = document.getElementById("fileName");
+    const results = document.getElementById("results");
+
+    resume.addEventListener("change", function () {
+      if (resume.files.length > 0) {
+        fileName.textContent = "Selected: " + resume.files[0].name;
+
+        setTimeout(() => {
+          results.style.display = "block";
+          results.scrollIntoView({ behavior: "smooth" });
+        }, 700);
+      }
+    });
+  </script>
+
+</body>
+</html>
